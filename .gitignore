@@ -25,4 +25,4 @@ artifacts/
 *.zip
 *.bak
 *.log
-PokoHex.Core/Properties/launchSettings.json
+PokoHex/Properties/launchSettings.json
