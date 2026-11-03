@@ -35,8 +35,7 @@ public partial class Main : Form
                 TryOpen(arg);
         }
     }
-
-    private bool HasChanges => SAV != null && (SAV.IsEdited || TB_Name.Text != SAV.Common.PlayerName || HasSlotChanges || Editor_Villagers.HasChanges || Editor_Map.HasChanges);
+    private bool HasChanges => SAV != null && (SAV.IsEdited || TB_Name.Text != SAV.Common.PlayerName || HasSlotChanges || Editor_Villagers.HasChanges || Editor_Map.HasChanges || Editor_Skills.HasChanges || Editor_Reactions.HasChanges);
 
     private bool HasSlotChanges
     {
@@ -76,6 +75,9 @@ public partial class Main : Form
             LoadInventory();
             Editor_Villagers.LoadSave(save.Common);
             Editor_Map.LoadSave(save);
+            Editor_Skills.LoadSave(save.Common);
+            Editor_Reactions.LoadSave(save.Common);
+            RB_Skills.Checked = true;
             Text = $"PokoHex / {Path.GetFileName(save.Folder)}";
             UpdateStatus();
         }
@@ -306,6 +308,8 @@ public partial class Main : Form
             SAV = SaveFolder.Read(dialog.SelectedPath);
             Editor_Villagers.LoadSave(SAV.Common);
             Editor_Map.LoadSave(SAV);
+            Editor_Skills.LoadSave(SAV.Common);
+            Editor_Reactions.LoadSave(SAV.Common);
             Text = $"PokoHex / {Path.GetFileName(SAV.Folder)}";
             LoadSlot();
             L_Status.Text = $"Exported to {dialog.SelectedPath}";
@@ -504,6 +508,12 @@ public partial class Main : Form
     private void btnTest_Click(object sender, EventArgs e)
     {
 
+    }
+
+    private void RB_PlayerSection_CheckedChanged(object sender, EventArgs e)
+    {
+        Editor_Skills.Visible = RB_Skills.Checked;
+        Editor_Reactions.Visible = RB_Reactions.Checked;
     }
 }
 

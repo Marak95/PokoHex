@@ -28,9 +28,15 @@ partial class Main
         L_Status = new ToolStripStatusLabel();
         TC_Editor = new TabControl();
         player = new TabPage();
-        name = new Label();
-        TB_Name = new TextBox();
+        playerHeader = new Panel();
         nameHint = new Label();
+        name = new Label();
+        playerSections = new FlowLayoutPanel();
+        RB_Skills = new RadioButton();
+        RB_Reactions = new RadioButton();
+        TB_Name = new TextBox();
+        Editor_Skills = new AbilityEditor();
+        Editor_Reactions = new AbilityEditor();
         items = new TabPage();
         split = new SplitContainer();
         DGV_Items = new DataGridView();
@@ -55,10 +61,13 @@ partial class Main
         Editor_Villagers = new VillagerEditor();
         map = new TabPage();
         Editor_Map = new MapEditor();
+        playerBody = new Panel();
         menu.SuspendLayout();
         status.SuspendLayout();
         TC_Editor.SuspendLayout();
         player.SuspendLayout();
+        playerHeader.SuspendLayout();
+        playerSections.SuspendLayout();
         items.SuspendLayout();
         ((ISupportInitialize)split).BeginInit();
         split.Panel1.SuspendLayout();
@@ -70,6 +79,7 @@ partial class Main
         ((ISupportInitialize)NUD_Count).BeginInit();
         villagers.SuspendLayout();
         map.SuspendLayout();
+        playerBody.SuspendLayout();
         SuspendLayout();
         // 
         // menu
@@ -78,7 +88,7 @@ partial class Main
         menu.Items.AddRange(new ToolStripItem[] { file, language, Menu_Language });
         menu.Location = new Point(0, 0);
         menu.Name = "menu";
-        menu.Size = new Size(1280, 32);
+        menu.Size = new Size(1804, 32);
         menu.TabIndex = 2;
         // 
         // file
@@ -129,9 +139,9 @@ partial class Main
         // 
         status.ImageScalingSize = new Size(20, 20);
         status.Items.AddRange(new ToolStripItem[] { L_Status });
-        status.Location = new Point(0, 987);
+        status.Location = new Point(0, 1485);
         status.Name = "status";
-        status.Size = new Size(1280, 26);
+        status.Size = new Size(1804, 26);
         status.TabIndex = 1;
         // 
         // L_Status
@@ -152,48 +162,119 @@ partial class Main
         TC_Editor.Margin = new Padding(3, 4, 3, 4);
         TC_Editor.Name = "TC_Editor";
         TC_Editor.SelectedIndex = 0;
-        TC_Editor.Size = new Size(1280, 955);
+        TC_Editor.Size = new Size(1804, 1453);
         TC_Editor.TabIndex = 0;
         // 
         // player
         // 
-        player.Controls.Add(name);
-        player.Controls.Add(TB_Name);
-        player.Controls.Add(nameHint);
+        player.Controls.Add(playerBody);
+        player.Controls.Add(playerHeader);
         player.Location = new Point(4, 29);
         player.Margin = new Padding(3, 4, 3, 4);
         player.Name = "player";
         player.Padding = new Padding(14, 16, 14, 16);
-        player.Size = new Size(1272, 922);
+        player.Size = new Size(1796, 1420);
         player.TabIndex = 0;
         player.Text = "Player";
+        // 
+        // playerHeader
+        // 
+        playerHeader.Controls.Add(nameHint);
+        playerHeader.Controls.Add(name);
+        playerHeader.Controls.Add(playerSections);
+        playerHeader.Controls.Add(TB_Name);
+        playerHeader.Dock = DockStyle.Top;
+        playerHeader.Location = new Point(14, 16);
+        playerHeader.Margin = new Padding(3, 4, 3, 4);
+        playerHeader.Name = "playerHeader";
+        playerHeader.Size = new Size(1768, 126);
+        playerHeader.TabIndex = 2;
+        // 
+        // nameHint
+        // 
+        nameHint.AutoSize = true;
+        nameHint.Location = new Point(414, 20);
+        nameHint.Name = "nameHint";
+        nameHint.Size = new Size(151, 20);
+        nameHint.TabIndex = 2;
+        nameHint.Text = "Up to 24 UTF-8 bytes.";
         // 
         // name
         // 
         name.AutoSize = true;
-        name.Location = new Point(25, 37);
+        name.Location = new Point(11, 22);
         name.Name = "name";
         name.Size = new Size(93, 20);
         name.TabIndex = 0;
         name.Text = "Player name:";
         // 
+        // playerSections
+        // 
+        playerSections.Controls.Add(RB_Skills);
+        playerSections.Controls.Add(RB_Reactions);
+        playerSections.Location = new Point(130, 67);
+        playerSections.Margin = new Padding(3, 4, 3, 4);
+        playerSections.Name = "playerSections";
+        playerSections.Size = new Size(274, 45);
+        playerSections.TabIndex = 2;
+        playerSections.WrapContents = false;
+        // 
+        // RB_Skills
+        // 
+        RB_Skills.Appearance = Appearance.Button;
+        RB_Skills.Checked = true;
+        RB_Skills.Location = new Point(0, 0);
+        RB_Skills.Margin = new Padding(0);
+        RB_Skills.Name = "RB_Skills";
+        RB_Skills.Size = new Size(133, 40);
+        RB_Skills.TabIndex = 0;
+        RB_Skills.TabStop = true;
+        RB_Skills.Text = "Skills";
+        RB_Skills.TextAlign = ContentAlignment.MiddleCenter;
+        RB_Skills.CheckedChanged += RB_PlayerSection_CheckedChanged;
+        // 
+        // RB_Reactions
+        // 
+        RB_Reactions.Appearance = Appearance.Button;
+        RB_Reactions.Location = new Point(133, 0);
+        RB_Reactions.Margin = new Padding(0);
+        RB_Reactions.Name = "RB_Reactions";
+        RB_Reactions.Size = new Size(133, 40);
+        RB_Reactions.TabIndex = 1;
+        RB_Reactions.Text = "Reactions";
+        RB_Reactions.TextAlign = ContentAlignment.MiddleCenter;
+        RB_Reactions.CheckedChanged += RB_PlayerSection_CheckedChanged;
+        // 
         // TB_Name
         // 
-        TB_Name.Location = new Point(144, 32);
+        TB_Name.Location = new Point(130, 17);
         TB_Name.Margin = new Padding(3, 4, 3, 4);
         TB_Name.MaxLength = 24;
         TB_Name.Name = "TB_Name";
         TB_Name.Size = new Size(278, 27);
         TB_Name.TabIndex = 1;
         // 
-        // nameHint
+        // Editor_Skills
         // 
-        nameHint.AutoSize = true;
-        nameHint.Location = new Point(144, 80);
-        nameHint.Name = "nameHint";
-        nameHint.Size = new Size(151, 20);
-        nameHint.TabIndex = 2;
-        nameHint.Text = "Up to 24 UTF-8 bytes.";
+        Editor_Skills.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+        Editor_Skills.Location = new Point(0, 0);
+        Editor_Skills.Margin = new Padding(3, 4, 3, 4);
+        Editor_Skills.Name = "Editor_Skills";
+        Editor_Skills.Padding = new Padding(11, 13, 11, 13);
+        Editor_Skills.Reactions = false;
+        Editor_Skills.Size = new Size(1793, 1278);
+        Editor_Skills.TabIndex = 1;
+        // 
+        // Editor_Reactions
+        // 
+        Editor_Reactions.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+        Editor_Reactions.Location = new Point(0, 0);
+        Editor_Reactions.Margin = new Padding(3, 4, 3, 4);
+        Editor_Reactions.Name = "Editor_Reactions";
+        Editor_Reactions.Padding = new Padding(11, 13, 11, 13);
+        Editor_Reactions.Reactions = true;
+        Editor_Reactions.Size = new Size(1796, 1278);
+        Editor_Reactions.TabIndex = 0;
         // 
         // items
         // 
@@ -202,7 +283,7 @@ partial class Main
         items.Margin = new Padding(3, 4, 3, 4);
         items.Name = "items";
         items.Padding = new Padding(9, 11, 9, 11);
-        items.Size = new Size(1272, 922);
+        items.Size = new Size(1796, 1420);
         items.TabIndex = 1;
         items.Text = "Items";
         // 
@@ -232,8 +313,8 @@ partial class Main
         split.Panel2.Controls.Add(B_Set);
         split.Panel2.Controls.Add(clear);
         split.Panel2.Controls.Add(L_Catalog);
-        split.Size = new Size(1254, 900);
-        split.SplitterDistance = 977;
+        split.Size = new Size(1778, 1398);
+        split.SplitterDistance = 1501;
         split.TabIndex = 0;
         // 
         // DGV_Items
@@ -256,7 +337,7 @@ partial class Main
         DGV_Items.RowTemplate.ReadOnly = true;
         DGV_Items.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
         DGV_Items.ShowEditingIcon = false;
-        DGV_Items.Size = new Size(977, 864);
+        DGV_Items.Size = new Size(1501, 1362);
         DGV_Items.TabIndex = 0;
         DGV_Items.CurrentCellChanged += DGV_Items_CurrentCellChanged;
         // 
@@ -302,7 +383,7 @@ partial class Main
         inventoryPanel.Dock = DockStyle.Top;
         inventoryPanel.Location = new Point(0, 0);
         inventoryPanel.Name = "inventoryPanel";
-        inventoryPanel.Size = new Size(977, 36);
+        inventoryPanel.Size = new Size(1501, 36);
         inventoryPanel.TabIndex = 1;
         // 
         // inventoryLabel
@@ -428,7 +509,7 @@ partial class Main
         villagers.Controls.Add(Editor_Villagers);
         villagers.Location = new Point(4, 29);
         villagers.Name = "villagers";
-        villagers.Size = new Size(1272, 922);
+        villagers.Size = new Size(1796, 1420);
         villagers.TabIndex = 2;
         villagers.Text = "Villagers";
         // 
@@ -439,7 +520,7 @@ partial class Main
         Editor_Villagers.Margin = new Padding(3, 4, 3, 4);
         Editor_Villagers.Name = "Editor_Villagers";
         Editor_Villagers.Padding = new Padding(9, 11, 9, 11);
-        Editor_Villagers.Size = new Size(1272, 922);
+        Editor_Villagers.Size = new Size(1796, 1420);
         Editor_Villagers.TabIndex = 0;
         // 
         // map
@@ -447,7 +528,7 @@ partial class Main
         map.Controls.Add(Editor_Map);
         map.Location = new Point(4, 29);
         map.Name = "map";
-        map.Size = new Size(1272, 922);
+        map.Size = new Size(1796, 1420);
         map.TabIndex = 3;
         map.Text = "Map";
         // 
@@ -458,15 +539,25 @@ partial class Main
         Editor_Map.Margin = new Padding(3, 4, 3, 4);
         Editor_Map.Name = "Editor_Map";
         Editor_Map.Padding = new Padding(7, 8, 7, 8);
-        Editor_Map.Size = new Size(1272, 922);
+        Editor_Map.Size = new Size(1796, 1420);
         Editor_Map.TabIndex = 0;
+        // 
+        // playerBody
+        // 
+        playerBody.Controls.Add(Editor_Skills);
+        playerBody.Controls.Add(Editor_Reactions);
+        playerBody.Dock = DockStyle.Fill;
+        playerBody.Location = new Point(14, 142);
+        playerBody.Name = "playerBody";
+        playerBody.Size = new Size(1768, 1262);
+        playerBody.TabIndex = 3;
         // 
         // Main
         // 
         AllowDrop = true;
         AutoScaleDimensions = new SizeF(8F, 20F);
         AutoScaleMode = AutoScaleMode.Font;
-        ClientSize = new Size(1280, 1013);
+        ClientSize = new Size(1804, 1511);
         Controls.Add(TC_Editor);
         Controls.Add(status);
         Controls.Add(menu);
@@ -486,7 +577,9 @@ partial class Main
         status.PerformLayout();
         TC_Editor.ResumeLayout(false);
         player.ResumeLayout(false);
-        player.PerformLayout();
+        playerHeader.ResumeLayout(false);
+        playerHeader.PerformLayout();
+        playerSections.ResumeLayout(false);
         items.ResumeLayout(false);
         split.Panel1.ResumeLayout(false);
         split.Panel2.ResumeLayout(false);
@@ -500,6 +593,7 @@ partial class Main
         ((ISupportInitialize)NUD_Count).EndInit();
         villagers.ResumeLayout(false);
         map.ResumeLayout(false);
+        playerBody.ResumeLayout(false);
         ResumeLayout(false);
         PerformLayout();
     }
@@ -542,4 +636,11 @@ partial class Main
     private DataGridViewTextBoxColumn dataGridViewTextBoxColumn3;
     private NumericUpDown NUD_CustomItemID;
     private CheckBox chk_CustomItem;
+    private AbilityEditor Editor_Reactions;
+    private AbilityEditor Editor_Skills;
+    private Panel playerHeader;
+    private FlowLayoutPanel playerSections;
+    private RadioButton RB_Skills;
+    private RadioButton RB_Reactions;
+    private Panel playerBody;
 }
