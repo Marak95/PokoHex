@@ -310,12 +310,58 @@ public partial class MapEditor : UserControl
 
     private int CellSize => Math.Max(1, Math.Min(PB_Map.Width - 1, PB_Map.Height - 1) / 32);
     private Rectangle MapRectangle => new((PB_Map.Width - CellSize * 32) / 2, (PB_Map.Height - CellSize * 32) / 2, CellSize * 32, CellSize * 32);
-
-    private Rectangle GetRectangle(MapBounds bounds)
+    
+       private Rectangle GetRectangle(MapBounds bounds, int direction)
     {
         var map = MapRectangle;
-        return new Rectangle(map.X + (bounds.X - (Chunk & 63) * 32) * CellSize,
-            map.Y + (bounds.Z - (Chunk >> 6) * 32) * CellSize, bounds.Width * CellSize, bounds.Depth * CellSize);
+
+        int x = bounds.X - (Chunk & 63) * 32;
+        int z = bounds.Z - (Chunk >> 6) * 32;
+
+        if (CHK_DoubleResolution.Checked)
+        {
+            int scaleX = bounds.Width;
+            int scaleZ = bounds.Depth;
+            int offsetX = 0;
+            int offsetZ = 0;
+
+            switch (direction)
+            {
+                case 0:
+                    offsetX = 0;
+                    offsetZ = 1;
+                    break;
+                case 1:
+                    offsetX = 1;
+                    offsetZ = 1;
+                    break;
+                case 2:
+                    offsetX = 1;
+                    offsetZ = 0;
+                    break;
+                case 3:
+                    offsetX = 0;
+                    offsetZ = 0;
+                    break;
+            }
+
+            x = (x - offsetX * scaleX);
+            z = (z - offsetZ * scaleZ);
+
+            return new Rectangle(
+                map.X + x * CellSize,
+                map.Y + z * CellSize,
+                bounds.Width * 2 * CellSize,
+                bounds.Depth * 2 * CellSize);
+        }
+        else
+        {
+            return new Rectangle(
+                map.X + x * CellSize,
+                map.Y + z * CellSize,
+                bounds.Width * CellSize,
+                bounds.Depth * CellSize);
+        }
     }
 
     private void PB_Map_Paint(object sender, PaintEventArgs e)
@@ -332,11 +378,11 @@ public partial class MapEditor : UserControl
         var z0 = (Chunk >> 6) * 32;
         var layer = (int)NUD_Height.Value;
         for (int z = 0; z < 32; z++)
-        for (int x = 0; x < 32; x++)
-        {
-            if (Stage.GetCell(x0 + x, layer, z0 + z) != 0)
-                g.FillRectangle(ground, map.X + x * CellSize, map.Y + z * CellSize, CellSize, CellSize);
-        }
+            for (int x = 0; x < 32; x++)
+            {
+                if (Stage.GetCell(x0 + x, layer, z0 + z) != 0)
+                    g.FillRectangle(ground, map.X + x * CellSize, map.Y + z * CellSize, CellSize, CellSize);
+            }
         using var grid = new Pen(Color.FromArgb(210, 210, 210));
         for (int i = 0; i <= 32; i++)
         {
@@ -351,7 +397,7 @@ public partial class MapEditor : UserControl
                 bounds = new MapBounds(part.X, part.Y, part.Z, 1, 1, 1);
             if (!bounds.Intersects(view) || !CHK_AllHeights.Checked && (layer < bounds.Y || layer >= bounds.Y + bounds.Height))
                 continue;
-            var rect = GetRectangle(bounds);
+            var rect = GetRectangle(bounds, part.Direction);
             using var fill = new SolidBrush(Color.FromArgb(110, part.Info.CanEdit ? Color.LightSteelBlue : Color.LightGray));
             g.FillRectangle(fill, rect);
             g.DrawRectangle(Pens.Gray, rect);
@@ -365,12 +411,12 @@ public partial class MapEditor : UserControl
         if (SelectedPart != null)
         {
             using var selected = new Pen(Color.RoyalBlue, 3);
-            g.DrawRectangle(selected, GetRectangle(SelectedPart.Bounds));
+            g.DrawRectangle(selected, GetRectangle(SelectedPart.Bounds, SelectedPart.Direction));
             if (HasChanges && CB_Item.SelectedItem is ItemInfo choice && CB_Direction.SelectedIndex >= 0)
             {
                 var bounds = MapPartInfo.Get(choice.Value).GetBounds((int)NUD_X.Value, (int)NUD_Y.Value, (int)NUD_Z.Value, CB_Direction.SelectedIndex);
                 using var preview = new Pen(B_Set.Enabled ? Color.ForestGreen : Color.Firebrick, 3) { DashStyle = System.Drawing.Drawing2D.DashStyle.Dash };
-                g.DrawRectangle(preview, GetRectangle(bounds));
+                g.DrawRectangle(preview, GetRectangle(bounds, CB_Direction.SelectedIndex));
             }
         }
         g.ResetClip();

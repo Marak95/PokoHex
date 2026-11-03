@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
@@ -47,7 +47,7 @@ public sealed class StageSave
             throw new InvalidDataException("The map chunks are invalid.");
 
         var parts = new List<MapPart>();
-        for (int i = 0; i < count; i++)
+        for (int i = 0; i < PartCapacity; i++)
         {
             var offset = PartPool + i * MapPart.SIZE;
             var state = ReadUInt32LittleEndian(raw.AsSpan(offset + 8));
@@ -56,8 +56,10 @@ public sealed class StageSave
                 throw new InvalidDataException("The map point reference is invalid.");
             var point = ReadUInt32LittleEndian(raw.AsSpan(Points + handle * 4));
             var part = new MapPart(i, raw.AsMemory(offset, MapPart.SIZE), raw.AsMemory(Points + handle * 4, 4));
-            if ((point >> 12) != i || part.Link != uint.MaxValue && part.Link >= count)
+
+            if ((point >> 12) != i)
                 throw new InvalidDataException("The map part reference is invalid.");
+
             if (part.Variation == 0)
                 continue;
             if (GetSlot(part.Chunk) == 0xFFFF)
@@ -68,7 +70,9 @@ public sealed class StageSave
         var byIndex = Parts.ToDictionary(z => z.Index);
         foreach (var part in Parts)
         {
-            if (part.Link != uint.MaxValue && (!byIndex.TryGetValue((int)part.Link, out var link) || link.Chunk != part.Chunk || link.Index >= part.Index))
+            if (part.Link != uint.MaxValue &&
+                (!byIndex.TryGetValue((int)part.Link, out var link) ||
+                 link.Chunk != part.Chunk))
                 throw new InvalidDataException("The map part chain is invalid.");
         }
     }

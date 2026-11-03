@@ -1,4 +1,4 @@
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 
@@ -68,7 +68,7 @@ partial class VillagerEditor
         CB_Area.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
         CB_Area.DropDownStyle = ComboBoxStyle.DropDownList;
         CB_Area.SelectedIndexChanged += Filter_Changed;
-        filter.Controls.AddRange([search, TB_Search, area, CB_Area]);
+        filter.Controls.AddRange(new Control[] {search, TB_Search, area, CB_Area});
         LB_Villagers.Name = "LB_Villagers";
         LB_Villagers.Dock = DockStyle.Fill;
         LB_Villagers.IntegralHeight = false;
@@ -117,7 +117,7 @@ partial class VillagerEditor
         home.Location = new Point(16, 348);
         L_Home.Location = new Point(16, 373);
         L_Home.Size = new Size(310, 75);
-        GB_Details.Controls.AddRange([PB_Villager, L_Index, friendship, NUD_Friendship, CHK_NameConversation, set, L_Gifts, home, L_Home]);
+        GB_Details.Controls.AddRange(new Control[] {PB_Villager, L_Index, friendship, NUD_Friendship, CHK_NameConversation, set, L_Gifts, home, L_Home});
         split.Panel2.AutoScroll = true;
         split.Panel2.Padding = new Padding(12, 0, 0, 0);
         split.Panel2.Controls.Add(GB_Details);

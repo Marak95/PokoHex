@@ -34,6 +34,12 @@ partial class MapEditor
         CB_Chunk = new ComboBox();
         NUD_Height = new NumericUpDown();
         CHK_AllHeights = new CheckBox();
+        CHK_DoubleResolution = new CheckBox();
+        CHK_DoubleResolution.Name = "CHK_DoubleResolution";
+        CHK_DoubleResolution.Text = "Double resolution";
+        CHK_DoubleResolution.Location = new Point(600, 38);
+        CHK_DoubleResolution.Size = new Size(150, 24);
+        CHK_DoubleResolution.CheckedChanged += View_Changed;
         TB_Search = new TextBox();
         LB_Parts = new ListBox();
         PB_Map = new PictureBox();
@@ -96,7 +102,7 @@ partial class MapEditor
         L_Count.Location = new Point(4, 69);
         L_Count.Size = new Size(880, 20);
         L_Count.Anchor = AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Top;
-        filters.Controls.AddRange([area, CB_Area, chunk, CB_Chunk, height, NUD_Height, CHK_AllHeights, search, TB_Search, L_Count]);
+        filters.Controls.AddRange(new Control[] { area, CB_Area, chunk, CB_Chunk, height, NUD_Height, CHK_AllHeights, search, TB_Search, L_Count, CHK_DoubleResolution });
         split.Dock = DockStyle.Fill;
         split.Size = new Size(920, 550);
         split.SplitterDistance = 550;
@@ -157,15 +163,20 @@ partial class MapEditor
         x.Location = new Point(12, 166);
         y.Location = new Point(122, 166);
         z.Location = new Point(232, 166);
-        x.Size = y.Size = z.Size = new Size(24, 20);
+        x.Size = new Size(24, 20);
+        y.Size = new Size(24, 20);
+        z.Size = new Size(24, 20);
         NUD_X.Name = "NUD_X";
         NUD_Y.Name = "NUD_Y";
         NUD_Z.Name = "NUD_Z";
         NUD_X.Location = new Point(12, 186);
         NUD_Y.Location = new Point(122, 186);
         NUD_Z.Location = new Point(232, 186);
-        NUD_X.Size = NUD_Y.Size = NUD_Z.Size = new Size(98, 23);
-        NUD_X.Maximum = NUD_Z.Maximum = 2047;
+        NUD_X.Size = new Size(98, 23);
+        NUD_Y.Size = new Size(98, 23);
+        NUD_Z.Size = new Size(98, 23);
+        NUD_X.Maximum = 2047;
+        NUD_Z.Maximum = 2047;
         NUD_Y.Maximum = 127;
         NUD_X.ValueChanged += Placement_Changed;
         NUD_Y.ValueChanged += Placement_Changed;
@@ -177,7 +188,7 @@ partial class MapEditor
         CB_Direction.Location = new Point(12, 244);
         CB_Direction.Size = new Size(160, 23);
         CB_Direction.DropDownStyle = ComboBoxStyle.DropDownList;
-        CB_Direction.Items.AddRange(["0", "1", "2", "3"]);
+        CB_Direction.Items.AddRange(new object[] { "0", "1", "2", "3" });
         CB_Direction.SelectedIndexChanged += Placement_Changed;
         B_Set.Name = "B_Set";
         B_Set.Text = "Set";
@@ -198,8 +209,8 @@ partial class MapEditor
         L_EditStatus.Location = new Point(12, 324);
         L_EditStatus.Size = new Size(318, 72);
         L_EditStatus.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-        GB_Details.Controls.AddRange([PB_Item, L_Item, L_Details, replacement, CB_Item, x, y, z, NUD_X, NUD_Y, NUD_Z,
-            direction, CB_Direction, B_Set, B_Undo, B_Redo, L_EditStatus]);
+        GB_Details.Controls.AddRange(new Control[] {PB_Item, L_Item, L_Details, replacement, CB_Item, x, y, z, NUD_X, NUD_Y, NUD_Z,
+            direction, CB_Direction, B_Set, B_Undo, B_Redo, L_EditStatus});
         details.Controls.Add(GB_Details);
         split.Panel2.Controls.Add(details);
         split.Panel2.Controls.Add(LB_Parts);
@@ -220,6 +231,7 @@ partial class MapEditor
     private ComboBox CB_Chunk = null!;
     private NumericUpDown NUD_Height = null!;
     private CheckBox CHK_AllHeights = null!;
+    private CheckBox CHK_DoubleResolution = null!;
     private TextBox TB_Search = null!;
     private ListBox LB_Parts = null!;
     private PictureBox PB_Map = null!;
