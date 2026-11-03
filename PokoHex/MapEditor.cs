@@ -121,6 +121,18 @@ public partial class MapEditor : UserControl
             .Where(z => z.Text.Contains(TB_Search.Text, StringComparison.CurrentCultureIgnoreCase))
             .OrderBy(z => GetItemName(z.Part.Info.ItemId)).ThenBy(z => z.Part.Index).ToArray() ?? [];
         var selected = SelectedPart;
+
+        var Chunk = (CB_Chunk.SelectedItem as ItemInfo)?.Value ?? 0;
+        var selectedChunkX = (Chunk & 63) * 32;
+        var selectedChunkZ = (Chunk >> 6) * 32;
+
+        if (Chunk != 0 && checkBox1.Checked)
+        {
+            entries = entries.Where(w => w.Part.X >= selectedChunkX && w.Part.X < (selectedChunkX + 32) && w.Part.Z >= selectedChunkZ && w.Part.Z < (selectedChunkZ + 32)).ToArray();
+            if (!CHK_AllHeights.Checked)
+                entries = entries.Where(w => NUD_Height.Value >= w.Part.Y && NUD_Height.Value <= w.Part.Y + w.Part.Bounds.Height - 1).ToArray();
+        }
+
         LB_Parts.DataSource = entries;
         LB_Parts.DisplayMember = nameof(MapEntry.Text);
         LB_Parts.SelectedIndex = Array.FindIndex(entries, z => z.Part == selected);
@@ -250,6 +262,9 @@ public partial class MapEditor : UserControl
             return;
         if (CB_Chunk.SelectedItem is ItemInfo chunk)
             Chunk = chunk.Value;
+
+        //LoadParts(false);
+        RefreshCounter();
         PB_Map.Invalidate();
     }
 
@@ -310,8 +325,8 @@ public partial class MapEditor : UserControl
 
     private int CellSize => Math.Max(1, Math.Min(PB_Map.Width - 1, PB_Map.Height - 1) / 32);
     private Rectangle MapRectangle => new((PB_Map.Width - CellSize * 32) / 2, (PB_Map.Height - CellSize * 32) / 2, CellSize * 32, CellSize * 32);
-    
-       private Rectangle GetRectangle(MapBounds bounds, int direction)
+
+    private Rectangle GetRectangle(MapBounds bounds, int direction)
     {
         var map = MapRectangle;
 
@@ -461,5 +476,31 @@ public partial class MapEditor : UserControl
         SelectedPart = part;
         Loading = false;
         LoadParts(false);
+    }
+
+    private void checkBox1_CheckedChanged(object sender, EventArgs e)
+    {
+        //LoadParts(false);
+        RefreshCounter();
+    }
+
+    private void RefreshCounter()
+    {
+        LoadParts(false);
+        if (checkBox1.Checked)
+        {
+            if (CHK_AllHeights.Checked)
+                L_Count.Text = $"{LB_Parts.Items.Count:N0} placed objects. (in current region)";
+            else
+                L_Count.Text = $"{LB_Parts.Items.Count:N0} placed objects. (in current region + height)";
+        }
+        else
+            L_Count.Text = Stage == null ? "No areas are available." : $"{Stage.Parts.Length:N0} placed objects.";
+    }
+
+    private void button1_Click(object sender, EventArgs e)
+    {
+        //LoadParts(false);
+        RefreshCounter();
     }
 }

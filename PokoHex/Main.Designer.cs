@@ -19,12 +19,11 @@ partial class Main
     {
         menu = new MenuStrip();
         file = new ToolStripMenuItem();
+        Menu_Open = new ToolStripMenuItem();
+        Menu_Export = new ToolStripMenuItem();
+        Menu_Exit = new ToolStripMenuItem();
         language = new ToolStripLabel();
         Menu_Language = new ToolStripComboBox();
-        Menu_Language = new ToolStripComboBox();
-        var open = new ToolStripMenuItem("&Open save folder...", null, Menu_Open_Click, Keys.Control | Keys.O);
-        Menu_Export = new ToolStripMenuItem("&Export save copy...", null, Menu_Export_Click, Keys.Control | Keys.S);
-        var exit = new ToolStripMenuItem("E&xit", null, Menu_Exit_Click);
         status = new StatusStrip();
         L_Status = new ToolStripStatusLabel();
         TC_Editor = new TabControl();
@@ -42,6 +41,8 @@ partial class Main
         inventoryPanel = new Panel();
         inventoryLabel = new Label();
         CB_Inventory = new ComboBox();
+        NUD_CustomItemID = new NumericUpDown();
+        chk_CustomItem = new CheckBox();
         L_Slot = new Label();
         itemLabel = new Label();
         CB_Item = new ComboBox();
@@ -50,7 +51,6 @@ partial class Main
         B_Set = new Button();
         clear = new Button();
         L_Catalog = new Label();
-        hint = new Label();
         villagers = new TabPage();
         Editor_Villagers = new VillagerEditor();
         map = new TabPage();
@@ -66,6 +66,7 @@ partial class Main
         split.SuspendLayout();
         ((ISupportInitialize)DGV_Items).BeginInit();
         inventoryPanel.SuspendLayout();
+        ((ISupportInitialize)NUD_CustomItemID).BeginInit();
         ((ISupportInitialize)NUD_Count).BeginInit();
         villagers.SuspendLayout();
         map.SuspendLayout();
@@ -77,20 +78,43 @@ partial class Main
         menu.Items.AddRange(new ToolStripItem[] { file, language, Menu_Language });
         menu.Location = new Point(0, 0);
         menu.Name = "menu";
-        menu.Size = new Size(200, 24);
+        menu.Size = new Size(1280, 32);
         menu.TabIndex = 2;
         // 
         // file
         // 
+        file.DropDownItems.AddRange(new ToolStripItem[] { Menu_Open, Menu_Export, Menu_Exit });
         file.Name = "file";
-        file.Size = new Size(46, 20);
+        file.Size = new Size(46, 28);
         file.Text = "&File";
-        file.DropDownItems.AddRange(new ToolStripItem[] { open, Menu_Export, new ToolStripSeparator(), exit });
+        // 
+        // Menu_Open
+        // 
+        Menu_Open.Name = "Menu_Open";
+        Menu_Open.ShortcutKeys = Keys.Control | Keys.O;
+        Menu_Open.Size = new Size(267, 26);
+        Menu_Open.Text = "Open save folder...";
+        Menu_Open.Click += Menu_Open_Click;
+        // 
+        // Menu_Export
+        // 
+        Menu_Export.Name = "Menu_Export";
+        Menu_Export.ShortcutKeys = Keys.Control | Keys.S;
+        Menu_Export.Size = new Size(267, 26);
+        Menu_Export.Text = "Export save copy...";
+        Menu_Export.Click += Menu_Export_Click;
+        // 
+        // Menu_Exit
+        // 
+        Menu_Exit.Name = "Menu_Exit";
+        Menu_Exit.Size = new Size(267, 26);
+        Menu_Exit.Text = "Exit";
+        Menu_Exit.Click += Menu_Exit_Click;
         // 
         // language
         // 
         language.Name = "language";
-        language.Size = new Size(77, 17);
+        language.Size = new Size(77, 25);
         language.Text = "Language:";
         // 
         // Menu_Language
@@ -98,22 +122,22 @@ partial class Main
         Menu_Language.DropDownStyle = ComboBoxStyle.DropDownList;
         Menu_Language.Items.AddRange(new object[] { "English", "日本語", "Deutsch", "Español", "Français", "Italiano", "한국어", "简体中文", "繁體中文" });
         Menu_Language.Name = "Menu_Language";
-        Menu_Language.Size = new Size(130, 23);
+        Menu_Language.Size = new Size(130, 28);
         Menu_Language.SelectedIndexChanged += Menu_Language_SelectedIndexChanged;
         // 
         // status
         // 
         status.ImageScalingSize = new Size(20, 20);
         status.Items.AddRange(new ToolStripItem[] { L_Status });
-        status.Location = new Point(0, 0);
+        status.Location = new Point(0, 987);
         status.Name = "status";
-        status.Size = new Size(200, 22);
+        status.Size = new Size(1280, 26);
         status.TabIndex = 1;
         // 
         // L_Status
         // 
         L_Status.Name = "L_Status";
-        L_Status.Size = new Size(23, 23);
+        L_Status.Size = new Size(197, 20);
         L_Status.Text = "Open a save folder to begin.";
         // 
         // TC_Editor
@@ -124,11 +148,11 @@ partial class Main
         TC_Editor.Controls.Add(map);
         TC_Editor.Dock = DockStyle.Fill;
         TC_Editor.Enabled = false;
-        TC_Editor.Location = new Point(0, 0);
+        TC_Editor.Location = new Point(0, 32);
         TC_Editor.Margin = new Padding(3, 4, 3, 4);
         TC_Editor.Name = "TC_Editor";
         TC_Editor.SelectedIndex = 0;
-        TC_Editor.Size = new Size(229, 133);
+        TC_Editor.Size = new Size(1280, 955);
         TC_Editor.TabIndex = 0;
         // 
         // player
@@ -140,7 +164,7 @@ partial class Main
         player.Margin = new Padding(3, 4, 3, 4);
         player.Name = "player";
         player.Padding = new Padding(14, 16, 14, 16);
-        player.Size = new Size(221, 100);
+        player.Size = new Size(1272, 922);
         player.TabIndex = 0;
         player.Text = "Player";
         // 
@@ -178,7 +202,7 @@ partial class Main
         items.Margin = new Padding(3, 4, 3, 4);
         items.Name = "items";
         items.Padding = new Padding(9, 11, 9, 11);
-        items.Size = new Size(221, 100);
+        items.Size = new Size(1272, 922);
         items.TabIndex = 1;
         items.Text = "Items";
         // 
@@ -194,10 +218,12 @@ partial class Main
         // 
         split.Panel1.Controls.Add(DGV_Items);
         split.Panel1.Controls.Add(inventoryPanel);
-        split.Panel1MinSize = 300;
         // 
         // split.Panel2
         // 
+        split.Panel2.BackColor = SystemColors.Control;
+        split.Panel2.Controls.Add(NUD_CustomItemID);
+        split.Panel2.Controls.Add(chk_CustomItem);
         split.Panel2.Controls.Add(L_Slot);
         split.Panel2.Controls.Add(itemLabel);
         split.Panel2.Controls.Add(CB_Item);
@@ -206,10 +232,8 @@ partial class Main
         split.Panel2.Controls.Add(B_Set);
         split.Panel2.Controls.Add(clear);
         split.Panel2.Controls.Add(L_Catalog);
-        split.Panel2.Controls.Add(hint);
-        split.Panel2MinSize = 310;
-        split.Size = new Size(614, 112);
-        split.SplitterDistance = 520;
+        split.Size = new Size(1254, 900);
+        split.SplitterDistance = 977;
         split.TabIndex = 0;
         // 
         // DGV_Items
@@ -228,32 +252,45 @@ partial class Main
         DGV_Items.ReadOnly = true;
         DGV_Items.RowHeadersVisible = false;
         DGV_Items.RowHeadersWidth = 51;
-        DGV_Items.RowTemplate.Height = 36;
+        DGV_Items.RowTemplate.Height = 72;
+        DGV_Items.RowTemplate.ReadOnly = true;
         DGV_Items.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-        DGV_Items.Size = new Size(520, 464);
+        DGV_Items.ShowEditingIcon = false;
+        DGV_Items.Size = new Size(977, 864);
         DGV_Items.TabIndex = 0;
         DGV_Items.CurrentCellChanged += DGV_Items_CurrentCellChanged;
         // 
         // dataGridViewTextBoxColumn1
         // 
+        dataGridViewTextBoxColumn1.FillWeight = 90.55259F;
+        dataGridViewTextBoxColumn1.HeaderText = "Slot #";
         dataGridViewTextBoxColumn1.MinimumWidth = 6;
         dataGridViewTextBoxColumn1.Name = "dataGridViewTextBoxColumn1";
         dataGridViewTextBoxColumn1.ReadOnly = true;
         // 
         // dataGridViewImageColumn1
         // 
+        dataGridViewImageColumn1.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+        dataGridViewImageColumn1.FillWeight = 128.342239F;
+        dataGridViewImageColumn1.HeaderText = "Image";
         dataGridViewImageColumn1.MinimumWidth = 6;
         dataGridViewImageColumn1.Name = "dataGridViewImageColumn1";
         dataGridViewImageColumn1.ReadOnly = true;
+        dataGridViewImageColumn1.Resizable = DataGridViewTriState.False;
+        dataGridViewImageColumn1.Width = 125;
         // 
         // dataGridViewTextBoxColumn2
         // 
+        dataGridViewTextBoxColumn2.FillWeight = 90.55259F;
+        dataGridViewTextBoxColumn2.HeaderText = "Name";
         dataGridViewTextBoxColumn2.MinimumWidth = 6;
         dataGridViewTextBoxColumn2.Name = "dataGridViewTextBoxColumn2";
         dataGridViewTextBoxColumn2.ReadOnly = true;
         // 
         // dataGridViewTextBoxColumn3
         // 
+        dataGridViewTextBoxColumn3.FillWeight = 90.55259F;
+        dataGridViewTextBoxColumn3.HeaderText = "Count";
         dataGridViewTextBoxColumn3.MinimumWidth = 6;
         dataGridViewTextBoxColumn3.Name = "dataGridViewTextBoxColumn3";
         dataGridViewTextBoxColumn3.ReadOnly = true;
@@ -265,7 +302,7 @@ partial class Main
         inventoryPanel.Dock = DockStyle.Top;
         inventoryPanel.Location = new Point(0, 0);
         inventoryPanel.Name = "inventoryPanel";
-        inventoryPanel.Size = new Size(520, 36);
+        inventoryPanel.Size = new Size(977, 36);
         inventoryPanel.TabIndex = 1;
         // 
         // inventoryLabel
@@ -286,6 +323,26 @@ partial class Main
         CB_Inventory.Size = new Size(180, 28);
         CB_Inventory.TabIndex = 1;
         CB_Inventory.SelectedIndexChanged += CB_Inventory_SelectedIndexChanged;
+        // 
+        // NUD_CustomItemID
+        // 
+        NUD_CustomItemID.Enabled = false;
+        NUD_CustomItemID.Location = new Point(180, 123);
+        NUD_CustomItemID.Maximum = new decimal(new int[] { 9999, 0, 0, 0 });
+        NUD_CustomItemID.Name = "NUD_CustomItemID";
+        NUD_CustomItemID.Size = new Size(90, 27);
+        NUD_CustomItemID.TabIndex = 10;
+        // 
+        // chk_CustomItem
+        // 
+        chk_CustomItem.AutoSize = true;
+        chk_CustomItem.Location = new Point(16, 123);
+        chk_CustomItem.Name = "chk_CustomItem";
+        chk_CustomItem.Size = new Size(84, 24);
+        chk_CustomItem.TabIndex = 9;
+        chk_CustomItem.Text = "Custom:";
+        chk_CustomItem.UseVisualStyleBackColor = true;
+        chk_CustomItem.CheckedChanged += chk_CustomItem_CheckedChanged;
         // 
         // L_Slot
         // 
@@ -316,7 +373,7 @@ partial class Main
         CB_Item.ItemHeight = 30;
         CB_Item.Location = new Point(16, 78);
         CB_Item.Name = "CB_Item";
-        CB_Item.Size = new Size(352, 36);
+        CB_Item.Size = new Size(254, 36);
         CB_Item.TabIndex = 2;
         CB_Item.DrawItem += CB_Item_DrawItem;
         CB_Item.SelectedIndexChanged += CB_Item_SelectedIndexChanged;
@@ -324,7 +381,7 @@ partial class Main
         // amount
         // 
         amount.AutoSize = true;
-        amount.Location = new Point(16, 135);
+        amount.Location = new Point(16, 161);
         amount.Name = "amount";
         amount.Size = new Size(65, 20);
         amount.TabIndex = 3;
@@ -332,7 +389,7 @@ partial class Main
         // 
         // NUD_Count
         // 
-        NUD_Count.Location = new Point(94, 132);
+        NUD_Count.Location = new Point(180, 161);
         NUD_Count.Maximum = new decimal(new int[] { 255, 0, 0, 0 });
         NUD_Count.Name = "NUD_Count";
         NUD_Count.Size = new Size(90, 27);
@@ -341,7 +398,7 @@ partial class Main
         // B_Set
         // 
         B_Set.Enabled = false;
-        B_Set.Location = new Point(16, 174);
+        B_Set.Location = new Point(16, 200);
         B_Set.Name = "B_Set";
         B_Set.Size = new Size(100, 30);
         B_Set.TabIndex = 5;
@@ -350,7 +407,7 @@ partial class Main
         // 
         // clear
         // 
-        clear.Location = new Point(126, 174);
+        clear.Location = new Point(170, 200);
         clear.Name = "clear";
         clear.Size = new Size(100, 30);
         clear.TabIndex = 6;
@@ -360,37 +417,29 @@ partial class Main
         // L_Catalog
         // 
         L_Catalog.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-        L_Catalog.Location = new Point(16, 234);
+        L_Catalog.Location = new Point(16, 870);
         L_Catalog.Name = "L_Catalog";
-        L_Catalog.Size = new Size(352, 42);
+        L_Catalog.Size = new Size(254, 30);
         L_Catalog.TabIndex = 7;
         L_Catalog.Text = "Item catalog";
-        // 
-        // hint
-        // 
-        hint.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-        hint.Location = new Point(16, 296);
-        hint.Name = "hint";
-        hint.Size = new Size(352, 100);
-        hint.TabIndex = 8;
-        hint.Text = "Type an item name to search.\r\n\r\nSet applies the selected item and amount.\r\nZero clears the slot.\r\n\r\nExport saves your changes to a new folder.";
         // 
         // villagers
         // 
         villagers.Controls.Add(Editor_Villagers);
         villagers.Location = new Point(4, 29);
         villagers.Name = "villagers";
-        villagers.Size = new Size(192, 67);
+        villagers.Size = new Size(1272, 922);
         villagers.TabIndex = 2;
         villagers.Text = "Villagers";
         // 
         // Editor_Villagers
         // 
+        Editor_Villagers.Dock = DockStyle.Fill;
         Editor_Villagers.Location = new Point(0, 0);
         Editor_Villagers.Margin = new Padding(3, 4, 3, 4);
         Editor_Villagers.Name = "Editor_Villagers";
         Editor_Villagers.Padding = new Padding(9, 11, 9, 11);
-        Editor_Villagers.Size = new Size(1070, 688);
+        Editor_Villagers.Size = new Size(1272, 922);
         Editor_Villagers.TabIndex = 0;
         // 
         // map
@@ -398,17 +447,18 @@ partial class Main
         map.Controls.Add(Editor_Map);
         map.Location = new Point(4, 29);
         map.Name = "map";
-        map.Size = new Size(192, 67);
+        map.Size = new Size(1272, 922);
         map.TabIndex = 3;
         map.Text = "Map";
         // 
         // Editor_Map
         // 
+        Editor_Map.Dock = DockStyle.Fill;
         Editor_Map.Location = new Point(0, 0);
         Editor_Map.Margin = new Padding(3, 4, 3, 4);
         Editor_Map.Name = "Editor_Map";
         Editor_Map.Padding = new Padding(7, 8, 7, 8);
-        Editor_Map.Size = new Size(1051, 867);
+        Editor_Map.Size = new Size(1272, 922);
         Editor_Map.TabIndex = 0;
         // 
         // Main
@@ -427,6 +477,7 @@ partial class Main
         StartPosition = FormStartPosition.CenterScreen;
         Text = "PokoHex";
         FormClosing += Main_FormClosing;
+        ResizeEnd += Main_ResizeEnd;
         DragDrop += Main_DragDrop;
         DragEnter += Main_DragEnter;
         menu.ResumeLayout(false);
@@ -445,6 +496,7 @@ partial class Main
         ((ISupportInitialize)DGV_Items).EndInit();
         inventoryPanel.ResumeLayout(false);
         inventoryPanel.PerformLayout();
+        ((ISupportInitialize)NUD_CustomItemID).EndInit();
         ((ISupportInitialize)NUD_Count).EndInit();
         villagers.ResumeLayout(false);
         map.ResumeLayout(false);
@@ -452,20 +504,19 @@ partial class Main
         PerformLayout();
     }
 
-    private ToolStripMenuItem Menu_Export = null!;
-    private ToolStripComboBox Menu_Language = null!;
-    private ToolStripStatusLabel L_Status = null!;
-    private TabControl TC_Editor = null!;
-    private TextBox TB_Name = null!;
-    private DataGridView DGV_Items = null!;
-    private ComboBox CB_Inventory = null!;
-    private ComboBox CB_Item = null!;
-    private NumericUpDown NUD_Count = null!;
-    private Label L_Slot = null!;
-    private Label L_Catalog = null!;
-    private Button B_Set = null!;
-    private VillagerEditor Editor_Villagers = null!;
-    private MapEditor Editor_Map = null!;
+    private ToolStripComboBox Menu_Language;
+    private ToolStripStatusLabel L_Status;
+    private TabControl TC_Editor;
+    private TextBox TB_Name;
+    private DataGridView DGV_Items;
+    private ComboBox CB_Inventory;
+    private ComboBox CB_Item;
+    private NumericUpDown NUD_Count;
+    private Label L_Slot;
+    private Label L_Catalog;
+    private Button B_Set;
+    private VillagerEditor Editor_Villagers;
+    private MapEditor Editor_Map;
     private MenuStrip menu;
     private ToolStripMenuItem file;
     private ToolStripLabel language;
@@ -475,16 +526,20 @@ partial class Main
     private Label nameHint;
     private TabPage items;
     private SplitContainer split;
-    private DataGridViewTextBoxColumn dataGridViewTextBoxColumn1;
-    private DataGridViewImageColumn dataGridViewImageColumn1;
-    private DataGridViewTextBoxColumn dataGridViewTextBoxColumn2;
-    private DataGridViewTextBoxColumn dataGridViewTextBoxColumn3;
     private Panel inventoryPanel;
     private Label inventoryLabel;
     private Label itemLabel;
     private Label amount;
     private Button clear;
-    private Label hint;
     private TabPage villagers;
     private TabPage map;
+    private ToolStripMenuItem Menu_Open;
+    private ToolStripMenuItem Menu_Export;
+    private ToolStripMenuItem Menu_Exit;
+    private DataGridViewTextBoxColumn dataGridViewTextBoxColumn1;
+    private DataGridViewImageColumn dataGridViewImageColumn1;
+    private DataGridViewTextBoxColumn dataGridViewTextBoxColumn2;
+    private DataGridViewTextBoxColumn dataGridViewTextBoxColumn3;
+    private NumericUpDown NUD_CustomItemID;
+    private CheckBox chk_CustomItem;
 }
