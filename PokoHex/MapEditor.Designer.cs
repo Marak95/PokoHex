@@ -18,6 +18,9 @@ partial class MapEditor
     private void InitializeComponent()
     {
         filters = new Panel();
+        btnJumpToInteriors = new Button();
+        interior = new Label();
+        CB_Interior = new ComboBox();
         area = new Label();
         CB_Area = new ComboBox();
         chunk = new Label();
@@ -27,7 +30,6 @@ partial class MapEditor
         CHK_AllHeights = new CheckBox();
         search = new Label();
         TB_Search = new TextBox();
-        CHK_DoubleResolution = new CheckBox();
         L_Count = new Label();
         split = new SplitContainer();
         PB_Map = new PictureBox();
@@ -70,6 +72,9 @@ partial class MapEditor
         // 
         // filters
         // 
+        filters.Controls.Add(btnJumpToInteriors);
+        filters.Controls.Add(interior);
+        filters.Controls.Add(CB_Interior);
         filters.Controls.Add(area);
         filters.Controls.Add(CB_Area);
         filters.Controls.Add(chunk);
@@ -79,13 +84,40 @@ partial class MapEditor
         filters.Controls.Add(CHK_AllHeights);
         filters.Controls.Add(search);
         filters.Controls.Add(TB_Search);
-        filters.Controls.Add(CHK_DoubleResolution);
         filters.Dock = DockStyle.Top;
         filters.Location = new Point(0, 0);
         filters.Margin = new Padding(3, 4, 3, 4);
         filters.Name = "filters";
-        filters.Size = new Size(1000, 123);
+        filters.Size = new Size(995, 123);
         filters.TabIndex = 1;
+        // 
+        // btnJumpToInteriors
+        // 
+        btnJumpToInteriors.Location = new Point(744, 43);
+        btnJumpToInteriors.Name = "btnJumpToInteriors";
+        btnJumpToInteriors.Size = new Size(230, 29);
+        btnJumpToInteriors.TabIndex = 13;
+        btnJumpToInteriors.Text = "Jump to main interiors";
+        btnJumpToInteriors.UseVisualStyleBackColor = true;
+        btnJumpToInteriors.Click += btnJumpToInteriors_Click;
+        // 
+        // interior
+        // 
+        interior.Location = new Point(673, 13);
+        interior.Name = "interior";
+        interior.Size = new Size(65, 27);
+        interior.TabIndex = 11;
+        interior.Text = "Interior:";
+        // 
+        // CB_Interior
+        // 
+        CB_Interior.DropDownStyle = ComboBoxStyle.DropDownList;
+        CB_Interior.Location = new Point(744, 8);
+        CB_Interior.Margin = new Padding(3, 4, 3, 4);
+        CB_Interior.Name = "CB_Interior";
+        CB_Interior.Size = new Size(230, 28);
+        CB_Interior.TabIndex = 12;
+        CB_Interior.SelectedIndexChanged += CB_Interior_SelectedIndexChanged;
         // 
         // area
         // 
@@ -119,7 +151,7 @@ partial class MapEditor
         CB_Chunk.Location = new Point(418, 8);
         CB_Chunk.Margin = new Padding(3, 4, 3, 4);
         CB_Chunk.Name = "CB_Chunk";
-        CB_Chunk.Size = new Size(251, 28);
+        CB_Chunk.Size = new Size(230, 28);
         CB_Chunk.TabIndex = 3;
         CB_Chunk.SelectedIndexChanged += View_Changed;
         // 
@@ -167,26 +199,16 @@ partial class MapEditor
         TB_Search.Location = new Point(418, 51);
         TB_Search.Margin = new Padding(3, 4, 3, 4);
         TB_Search.Name = "TB_Search";
-        TB_Search.Size = new Size(251, 27);
+        TB_Search.Size = new Size(230, 27);
         TB_Search.TabIndex = 8;
         TB_Search.TextChanged += TB_Search_TextChanged;
-        // 
-        // CHK_DoubleResolution
-        // 
-        CHK_DoubleResolution.Location = new Point(171, 83);
-        CHK_DoubleResolution.Margin = new Padding(3, 4, 3, 4);
-        CHK_DoubleResolution.Name = "CHK_DoubleResolution";
-        CHK_DoubleResolution.Size = new Size(171, 32);
-        CHK_DoubleResolution.TabIndex = 10;
-        CHK_DoubleResolution.Text = "Double resolution";
-        CHK_DoubleResolution.CheckedChanged += View_Changed;
         // 
         // L_Count
         // 
         L_Count.Dock = DockStyle.Top;
         L_Count.Location = new Point(0, 0);
         L_Count.Name = "L_Count";
-        L_Count.Size = new Size(526, 27);
+        L_Count.Size = new Size(531, 27);
         L_Count.TabIndex = 9;
         L_Count.TextAlign = ContentAlignment.TopRight;
         // 
@@ -209,7 +231,7 @@ partial class MapEditor
         split.Panel2.Controls.Add(details);
         split.Panel2MinSize = 350;
         split.Size = new Size(1531, 1179);
-        split.SplitterDistance = 1000;
+        split.SplitterDistance = 995;
         split.SplitterWidth = 5;
         split.TabIndex = 0;
         // 
@@ -219,7 +241,7 @@ partial class MapEditor
         PB_Map.Location = new Point(0, 123);
         PB_Map.Margin = new Padding(3, 4, 3, 4);
         PB_Map.Name = "PB_Map";
-        PB_Map.Size = new Size(1000, 1056);
+        PB_Map.Size = new Size(995, 1056);
         PB_Map.TabIndex = 0;
         PB_Map.TabStop = false;
         PB_Map.Paint += PB_Map_Paint;
@@ -237,7 +259,7 @@ partial class MapEditor
         details.Location = new Point(0, 0);
         details.Margin = new Padding(3, 4, 3, 4);
         details.Name = "details";
-        details.Size = new Size(526, 1179);
+        details.Size = new Size(531, 1179);
         details.TabIndex = 0;
         // 
         // checkBox1
@@ -259,7 +281,7 @@ partial class MapEditor
         LB_Parts.Location = new Point(0, 27);
         LB_Parts.Margin = new Padding(3, 4, 3, 4);
         LB_Parts.Name = "LB_Parts";
-        LB_Parts.Size = new Size(526, 675);
+        LB_Parts.Size = new Size(531, 675);
         LB_Parts.TabIndex = 1;
         LB_Parts.DrawItem += LB_Parts_DrawItem;
         LB_Parts.SelectedIndexChanged += LB_Parts_SelectedIndexChanged;
@@ -288,7 +310,7 @@ partial class MapEditor
         GB_Details.Margin = new Padding(3, 4, 3, 4);
         GB_Details.Name = "GB_Details";
         GB_Details.Padding = new Padding(3, 4, 3, 4);
-        GB_Details.Size = new Size(526, 477);
+        GB_Details.Size = new Size(531, 477);
         GB_Details.TabIndex = 0;
         GB_Details.TabStop = false;
         GB_Details.Text = "Placement";
@@ -308,7 +330,7 @@ partial class MapEditor
         L_Item.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
         L_Item.Location = new Point(105, 24);
         L_Item.Name = "L_Item";
-        L_Item.Size = new Size(118, 37);
+        L_Item.Size = new Size(123, 37);
         L_Item.TabIndex = 1;
         // 
         // L_Details
@@ -331,7 +353,7 @@ partial class MapEditor
         L_EditStatus.Dock = DockStyle.Bottom;
         L_EditStatus.Location = new Point(3, 430);
         L_EditStatus.Name = "L_EditStatus";
-        L_EditStatus.Size = new Size(520, 43);
+        L_EditStatus.Size = new Size(525, 43);
         L_EditStatus.TabIndex = 16;
         // 
         // CB_Item
@@ -346,7 +368,7 @@ partial class MapEditor
         CB_Item.Location = new Point(14, 160);
         CB_Item.Margin = new Padding(3, 4, 3, 4);
         CB_Item.Name = "CB_Item";
-        CB_Item.Size = new Size(118, 36);
+        CB_Item.Size = new Size(367, 36);
         CB_Item.TabIndex = 4;
         CB_Item.DrawItem += CB_Item_DrawItem;
         CB_Item.SelectedIndexChanged += Placement_Changed;
@@ -473,6 +495,7 @@ partial class MapEditor
         Name = "MapEditor";
         Padding = new Padding(7, 8, 7, 8);
         Size = new Size(1545, 1232);
+        Load += View_Changed;
         filters.ResumeLayout(false);
         filters.PerformLayout();
         ((ISupportInitialize)NUD_Height).EndInit();
@@ -494,7 +517,6 @@ partial class MapEditor
     private ComboBox CB_Chunk = null!;
     private NumericUpDown NUD_Height = null!;
     private CheckBox CHK_AllHeights = null!;
-    private CheckBox CHK_DoubleResolution = null!;
     private TextBox TB_Search = null!;
     private ListBox LB_Parts = null!;
     private PictureBox PB_Map = null!;
@@ -526,4 +548,7 @@ partial class MapEditor
     private Label z;
     private Label direction;
     private CheckBox checkBox1;
+    private Label interior;
+    private ComboBox CB_Interior;
+    private Button btnJumpToInteriors;
 }

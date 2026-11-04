@@ -19,25 +19,25 @@ partial class AbilityEditor
     {
         split = new SplitContainer();
         DGV_Abilities = new DataGridView();
-        buttons = new FlowLayoutPanel();
-        B_Learn = new Button();
-        B_LearnAll = new Button();
-        L_Count = new Label();
-        GB_Wheel = new GroupBox();
-        LB_Wheel = new ListBox();
-        CB_WheelAbility = new ComboBox();
-        B_Set = new Button();
         dataGridViewImageColumn1 = new DataGridViewImageColumn();
         dataGridViewTextBoxColumn1 = new DataGridViewTextBoxColumn();
         dataGridViewCheckBoxColumn1 = new DataGridViewCheckBoxColumn();
         dataGridViewTextBoxColumn2 = new DataGridViewTextBoxColumn();
+        GB_Wheel = new GroupBox();
+        LB_Wheel = new ListBox();
+        CB_WheelAbility = new ComboBox();
+        B_Set = new Button();
+        buttons = new FlowLayoutPanel();
+        B_Learn = new Button();
+        B_LearnAll = new Button();
+        L_Count = new Label();
         ((ISupportInitialize)split).BeginInit();
         split.Panel1.SuspendLayout();
         split.Panel2.SuspendLayout();
         split.SuspendLayout();
         ((ISupportInitialize)DGV_Abilities).BeginInit();
-        buttons.SuspendLayout();
         GB_Wheel.SuspendLayout();
+        buttons.SuspendLayout();
         SuspendLayout();
         // 
         // split
@@ -51,16 +51,15 @@ partial class AbilityEditor
         // split.Panel1
         // 
         split.Panel1.Controls.Add(DGV_Abilities);
-        split.Panel1.Controls.Add(buttons);
-        split.Panel1.Controls.Add(L_Count);
         split.Panel1MinSize = 260;
         // 
         // split.Panel2
         // 
         split.Panel2.Controls.Add(GB_Wheel);
+        split.Panel2.Padding = new Padding(14, 0, 14, 0);
         split.Panel2MinSize = 320;
-        split.Size = new Size(1029, 774);
-        split.SplitterDistance = 601;
+        split.Size = new Size(1029, 718);
+        split.SplitterDistance = 587;
         split.SplitterWidth = 5;
         split.TabIndex = 0;
         // 
@@ -84,101 +83,9 @@ partial class AbilityEditor
         DGV_Abilities.RowTemplate.Height = 72;
         DGV_Abilities.RowTemplate.Resizable = DataGridViewTriState.False;
         DGV_Abilities.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-        DGV_Abilities.Size = new Size(601, 681);
+        DGV_Abilities.Size = new Size(587, 718);
         DGV_Abilities.TabIndex = 0;
         DGV_Abilities.CurrentCellChanged += DGV_Abilities_CurrentCellChanged;
-        // 
-        // buttons
-        // 
-        buttons.Controls.Add(B_Learn);
-        buttons.Controls.Add(B_LearnAll);
-        buttons.Dock = DockStyle.Bottom;
-        buttons.Location = new Point(0, 681);
-        buttons.Margin = new Padding(3, 4, 3, 4);
-        buttons.Name = "buttons";
-        buttons.Padding = new Padding(0, 8, 0, 0);
-        buttons.Size = new Size(601, 56);
-        buttons.TabIndex = 1;
-        // 
-        // B_Learn
-        // 
-        B_Learn.Location = new Point(3, 12);
-        B_Learn.Margin = new Padding(3, 4, 3, 4);
-        B_Learn.Name = "B_Learn";
-        B_Learn.Size = new Size(114, 40);
-        B_Learn.TabIndex = 0;
-        B_Learn.Text = "Learn";
-        B_Learn.Click += B_Learn_Click;
-        // 
-        // B_LearnAll
-        // 
-        B_LearnAll.Location = new Point(123, 12);
-        B_LearnAll.Margin = new Padding(3, 4, 3, 4);
-        B_LearnAll.Name = "B_LearnAll";
-        B_LearnAll.Size = new Size(114, 40);
-        B_LearnAll.TabIndex = 1;
-        B_LearnAll.Text = "Learn all";
-        B_LearnAll.Click += B_LearnAll_Click;
-        // 
-        // L_Count
-        // 
-        L_Count.Dock = DockStyle.Bottom;
-        L_Count.Location = new Point(0, 737);
-        L_Count.Name = "L_Count";
-        L_Count.Size = new Size(601, 37);
-        L_Count.TabIndex = 2;
-        L_Count.TextAlign = ContentAlignment.MiddleLeft;
-        // 
-        // GB_Wheel
-        // 
-        GB_Wheel.Controls.Add(LB_Wheel);
-        GB_Wheel.Controls.Add(CB_WheelAbility);
-        GB_Wheel.Controls.Add(B_Set);
-        GB_Wheel.Dock = DockStyle.Fill;
-        GB_Wheel.Location = new Point(0, 0);
-        GB_Wheel.Margin = new Padding(3, 4, 3, 4);
-        GB_Wheel.Name = "GB_Wheel";
-        GB_Wheel.Padding = new Padding(14, 24, 14, 16);
-        GB_Wheel.Size = new Size(423, 774);
-        GB_Wheel.TabIndex = 0;
-        GB_Wheel.TabStop = false;
-        GB_Wheel.Text = "Skill wheel order";
-        // 
-        // LB_Wheel
-        // 
-        LB_Wheel.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-        LB_Wheel.IntegralHeight = false;
-        LB_Wheel.Location = new Point(18, 35);
-        LB_Wheel.Margin = new Padding(3, 4, 3, 4);
-        LB_Wheel.Name = "LB_Wheel";
-        LB_Wheel.Size = new Size(386, 610);
-        LB_Wheel.TabIndex = 0;
-        LB_Wheel.SelectedIndexChanged += LB_Wheel_SelectedIndexChanged;
-        // 
-        // CB_WheelAbility
-        // 
-        CB_WheelAbility.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-        CB_WheelAbility.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
-        CB_WheelAbility.AutoCompleteSource = AutoCompleteSource.ListItems;
-        CB_WheelAbility.DropDownStyle = ComboBoxStyle.DropDownList;
-        CB_WheelAbility.DropDownWidth = 400;
-        CB_WheelAbility.Location = new Point(17, 653);
-        CB_WheelAbility.Margin = new Padding(3, 4, 3, 4);
-        CB_WheelAbility.Name = "CB_WheelAbility";
-        CB_WheelAbility.Size = new Size(386, 28);
-        CB_WheelAbility.TabIndex = 1;
-        CB_WheelAbility.SelectedIndexChanged += CB_WheelAbility_SelectedIndexChanged;
-        // 
-        // B_Set
-        // 
-        B_Set.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-        B_Set.Location = new Point(17, 693);
-        B_Set.Margin = new Padding(3, 4, 3, 4);
-        B_Set.Name = "B_Set";
-        B_Set.Size = new Size(114, 40);
-        B_Set.TabIndex = 2;
-        B_Set.Text = "Set";
-        B_Set.Click += B_Set_Click;
         // 
         // dataGridViewImageColumn1
         // 
@@ -215,11 +122,105 @@ partial class AbilityEditor
         dataGridViewTextBoxColumn2.Name = "dataGridViewTextBoxColumn2";
         dataGridViewTextBoxColumn2.ReadOnly = true;
         // 
+        // GB_Wheel
+        // 
+        GB_Wheel.Controls.Add(LB_Wheel);
+        GB_Wheel.Controls.Add(CB_WheelAbility);
+        GB_Wheel.Controls.Add(B_Set);
+        GB_Wheel.Dock = DockStyle.Top;
+        GB_Wheel.Location = new Point(14, 0);
+        GB_Wheel.Margin = new Padding(3, 4, 3, 4);
+        GB_Wheel.Name = "GB_Wheel";
+        GB_Wheel.Padding = new Padding(2, 24, 2, 0);
+        GB_Wheel.Size = new Size(409, 586);
+        GB_Wheel.TabIndex = 0;
+        GB_Wheel.TabStop = false;
+        GB_Wheel.Text = "Skill wheel order";
+        // 
+        // LB_Wheel
+        // 
+        LB_Wheel.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+        LB_Wheel.IntegralHeight = false;
+        LB_Wheel.Location = new Point(6, 35);
+        LB_Wheel.Margin = new Padding(3, 4, 3, 4);
+        LB_Wheel.Name = "LB_Wheel";
+        LB_Wheel.Size = new Size(396, 491);
+        LB_Wheel.TabIndex = 0;
+        LB_Wheel.SelectedIndexChanged += LB_Wheel_SelectedIndexChanged;
+        // 
+        // CB_WheelAbility
+        // 
+        CB_WheelAbility.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+        CB_WheelAbility.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
+        CB_WheelAbility.AutoCompleteSource = AutoCompleteSource.ListItems;
+        CB_WheelAbility.DropDownStyle = ComboBoxStyle.DropDownList;
+        CB_WheelAbility.DropDownWidth = 400;
+        CB_WheelAbility.Location = new Point(13, 541);
+        CB_WheelAbility.Margin = new Padding(3, 4, 3, 4);
+        CB_WheelAbility.Name = "CB_WheelAbility";
+        CB_WheelAbility.Size = new Size(268, 28);
+        CB_WheelAbility.TabIndex = 1;
+        CB_WheelAbility.SelectedIndexChanged += CB_WheelAbility_SelectedIndexChanged;
+        // 
+        // B_Set
+        // 
+        B_Set.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+        B_Set.Location = new Point(287, 534);
+        B_Set.Margin = new Padding(3, 4, 3, 4);
+        B_Set.Name = "B_Set";
+        B_Set.Size = new Size(114, 40);
+        B_Set.TabIndex = 2;
+        B_Set.Text = "Set";
+        B_Set.Click += B_Set_Click;
+        // 
+        // buttons
+        // 
+        buttons.Controls.Add(B_Learn);
+        buttons.Controls.Add(B_LearnAll);
+        buttons.Controls.Add(L_Count);
+        buttons.Dock = DockStyle.Bottom;
+        buttons.Location = new Point(11, 731);
+        buttons.Margin = new Padding(3, 4, 3, 4);
+        buttons.Name = "buttons";
+        buttons.Padding = new Padding(0, 8, 0, 0);
+        buttons.Size = new Size(1029, 56);
+        buttons.TabIndex = 1;
+        // 
+        // B_Learn
+        // 
+        B_Learn.Location = new Point(3, 12);
+        B_Learn.Margin = new Padding(3, 4, 3, 4);
+        B_Learn.Name = "B_Learn";
+        B_Learn.Size = new Size(114, 40);
+        B_Learn.TabIndex = 0;
+        B_Learn.Text = "Learn";
+        B_Learn.Click += B_Learn_Click;
+        // 
+        // B_LearnAll
+        // 
+        B_LearnAll.Location = new Point(123, 12);
+        B_LearnAll.Margin = new Padding(3, 4, 3, 4);
+        B_LearnAll.Name = "B_LearnAll";
+        B_LearnAll.Size = new Size(114, 40);
+        B_LearnAll.TabIndex = 1;
+        B_LearnAll.Text = "Learn all";
+        B_LearnAll.Click += B_LearnAll_Click;
+        // 
+        // L_Count
+        // 
+        L_Count.Location = new Point(243, 16);
+        L_Count.Margin = new Padding(3, 8, 3, 0);
+        L_Count.Name = "L_Count";
+        L_Count.Size = new Size(601, 37);
+        L_Count.TabIndex = 2;
+        L_Count.TextAlign = ContentAlignment.MiddleLeft;
+        // 
         // AbilityEditor
         // 
         AutoScaleDimensions = new SizeF(8F, 20F);
         AutoScaleMode = AutoScaleMode.Font;
         Controls.Add(split);
+        Controls.Add(buttons);
         Margin = new Padding(3, 4, 3, 4);
         Name = "AbilityEditor";
         Padding = new Padding(11, 13, 11, 13);
@@ -229,8 +230,8 @@ partial class AbilityEditor
         ((ISupportInitialize)split).EndInit();
         split.ResumeLayout(false);
         ((ISupportInitialize)DGV_Abilities).EndInit();
-        buttons.ResumeLayout(false);
         GB_Wheel.ResumeLayout(false);
+        buttons.ResumeLayout(false);
         ResumeLayout(false);
     }
 
