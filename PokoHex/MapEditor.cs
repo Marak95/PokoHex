@@ -110,7 +110,7 @@ public partial class MapEditor : UserControl
                     if (x == 1952 && z == 1952)
                     {
                         LoadInteriors((ushort)chunk);
-                    }
+                }
                 }
                 CB_Chunk.DisplayMember = nameof(ItemInfo.Text);
                 CB_Chunk.SelectedIndex = 0;
@@ -328,7 +328,7 @@ public partial class MapEditor : UserControl
             CB_Interior.SelectedIndex = 0;
     }
 
-    private void LoadParts(bool center)
+    private void LoadParts(bool center, bool fullrefresh = true)
     {
         Loading = true;
         var entries = Stage?.Parts.Select(z => new MapEntry(z,
@@ -359,8 +359,11 @@ public partial class MapEditor : UserControl
                 entries = entries.Where(w => NUD_Height.Value >= w.Part.Y && NUD_Height.Value <= w.Part.Y + w.Part.Bounds.Height - 1).ToArray();
         }
 
-        LB_Parts.DataSource = entries;
-        LB_Parts.DisplayMember = nameof(MapEntry.Text);
+        if (fullrefresh)
+        {
+            LB_Parts.DataSource = entries;
+            LB_Parts.DisplayMember = nameof(MapEntry.Text);
+        }
         LB_Parts.SelectedIndex = Array.FindIndex(entries, z => z.Part == selected);
         if (LB_Parts.SelectedIndex < 0 && entries.Length != 0)
         {
@@ -565,33 +568,10 @@ public partial class MapEditor : UserControl
 
         if (Interior)
         {
-            int scaleX = bounds.Width;
-            int scaleZ = bounds.Depth;
-            int offsetX = 0;
-            int offsetZ = 0;
-
-            switch (direction)
-            {
-                case 0:
-                    offsetX = 0;
-                    offsetZ = 1;
-                    break;
-                case 1:
-                    offsetX = 1;
-                    offsetZ = 1;
-                    break;
-                case 2:
-                    offsetX = 1;
-                    offsetZ = 0;
-                    break;
-                case 3:
-                    offsetX = 0;
-                    offsetZ = 0;
-                    break;
-            }
-
-            x = (x - offsetX * scaleX);
-            z = (z - offsetZ * scaleZ);
+            int offsetX = ((direction & 1) != 0) ^ ((direction & 2) != 0) ? 1 : 0;
+            int offsetZ = (direction & 2) == 0 ? 1 : 0;
+            x = (x - offsetX * bounds.Width);
+            z = (z - offsetZ * bounds.Depth);
 
             return new Rectangle(
                 map.X + x * CellSize,
@@ -609,64 +589,6 @@ public partial class MapEditor : UserControl
         }
     }
 
-    private void PB_Map_Paint0(object sender, PaintEventArgs e)
-    {
-        var g = e.Graphics;
-        g.Clear(SystemColors.AppWorkspace);
-        if (Stage == null)
-            return;
-        var map = MapRectangle;
-        g.SetClip(map);
-        g.FillRectangle(Brushes.White, map);
-        using var ground = new SolidBrush(Color.FromArgb(225, 229, 222));
-        var x0 = (Chunk & 63) * 32;
-        var z0 = (Chunk >> 6) * 32;
-        var layer = (int)NUD_Height.Value;
-        for (int z = 0; z < 32; z++)
-            for (int x = 0; x < 32; x++)
-            {
-                if (Stage.GetCell(x0 + x, layer, z0 + z) != 0)
-                    g.FillRectangle(ground, map.X + x * CellSize, map.Y + z * CellSize, CellSize, CellSize);
-            }
-        using var grid = new Pen(Color.FromArgb(210, 210, 210));
-        for (int i = 0; i <= 32; i++)
-        {
-            g.DrawLine(grid, map.X + i * CellSize, map.Top, map.X + i * CellSize, map.Bottom);
-            g.DrawLine(grid, map.Left, map.Y + i * CellSize, map.Right, map.Y + i * CellSize);
-        }
-        var view = new MapBounds(x0, 0, z0, 32, 128, 32);
-        foreach (var part in Stage.Parts.OrderBy(z => z.Y).ThenBy(z => z.Index))
-        {
-            var bounds = part.Bounds;
-            if (bounds.Width == 0 || bounds.Height == 0 || bounds.Depth == 0)
-                bounds = new MapBounds(part.X, part.Y, part.Z, 1, 1, 1);
-            if (!bounds.Intersects(view) || !CHK_AllHeights.Checked && (layer < bounds.Y || layer >= bounds.Y + bounds.Height))
-                continue;
-            var rect = GetRectangle(bounds, part.Direction);
-            using var fill = new SolidBrush(Color.FromArgb(110, part.Info.CanEdit ? Color.LightSteelBlue : Color.LightGray));
-            g.FillRectangle(fill, rect);
-            g.DrawRectangle(Pens.Gray, rect);
-            var image = ItemSprite.GetItemSprite(part.Info.ItemId);
-            if (image != null)
-            {
-                var size = Math.Min(36, Math.Min(rect.Width, rect.Height));
-                g.DrawImage(image, new Rectangle(rect.X + (rect.Width - size) / 2, rect.Y + (rect.Height - size) / 2, size, size));
-            }
-        }
-        if (SelectedPart != null)
-        {
-            using var selected = new Pen(Color.RoyalBlue, 3);
-            g.DrawRectangle(selected, GetRectangle(SelectedPart.Bounds, SelectedPart.Direction));
-            if (HasChanges && CB_Item.SelectedItem is ItemInfo choice && CB_Direction.SelectedIndex >= 0)
-            {
-                var bounds = MapPartInfo.Get(choice.Value).GetBounds((int)NUD_X.Value, (int)NUD_Y.Value, (int)NUD_Z.Value, CB_Direction.SelectedIndex);
-                using var preview = new Pen(B_Set.Enabled ? Color.ForestGreen : Color.Firebrick, 3) { DashStyle = System.Drawing.Drawing2D.DashStyle.Dash };
-                g.DrawRectangle(preview, GetRectangle(bounds, CB_Direction.SelectedIndex));
-            }
-        }
-        g.ResetClip();
-        g.DrawRectangle(Pens.Black, map);
-    }
 
     private void PB_Map_Paint(object sender, PaintEventArgs e)
     {
@@ -694,14 +616,16 @@ public partial class MapEditor : UserControl
             floor = selectedInterior.Floor + 1;
             ceiling = selectedInterior.Ceiling - 1;
         }
-        if (!Interior || (layer >= floor && layer <= ceiling))
+        if (layer >= floor && layer <= ceiling)
         {
             for (int z = 0; z < 32; z++)
             {
                 for (int x = 0; x < 32; x++)
                 {
-                    if (Stage.GetCell(x0 + x, layer, z0 + z) != 0)
-                        g.FillRectangle(ground, map.X + x * CellSize, map.Y + z * CellSize, CellSize, CellSize);
+                    uint cell = Stage.GetCell(x0 + x, layer, z0 + z);
+                    var rect = new Rectangle(map.X + x * CellSize, map.Y + z * CellSize, CellSize, CellSize);
+                    if (cell != 0)
+                        g.FillRectangle(ground, rect);
                 }
             }
         }
@@ -749,6 +673,32 @@ public partial class MapEditor : UserControl
                 var bounds = MapPartInfo.Get(choice.Value).GetBounds((int)NUD_X.Value, (int)NUD_Y.Value, (int)NUD_Z.Value, CB_Direction.SelectedIndex);
                 using var preview = new Pen(B_Set.Enabled ? Color.ForestGreen : Color.Firebrick, 3) { DashStyle = System.Drawing.Drawing2D.DashStyle.Dash };
                 g.DrawRectangle(preview, GetRectangle(bounds, CB_Direction.SelectedIndex));
+            }
+        }
+
+        // text on cell
+        if (false)
+        {
+            using var font = new System.Drawing.Font("Consolas", Math.Max(2f, CellSize * 0.13f), FontStyle.Regular);
+            using var textBrush = new SolidBrush(Color.FromArgb(80, Color.Black));
+            for (int z = 0; z < 32; z++)
+            {
+                for (int x = 0; x < 32; x++)
+                {
+                    uint cell = Stage.GetCell(x0 + x, layer, z0 + z);
+                    var rect = new Rectangle(map.X + x * CellSize, map.Y + z * CellSize, CellSize, CellSize);
+
+                    var str = cell.ToString("X6");
+                    float lineHeight = font.GetHeight(g) * 0.7f;
+                    for (int i = 0; i < 3; i++)
+                    {
+                        g.DrawString(str[(i * 2)..(i * 2 + 2)], font, textBrush, rect.X + i * 11 + 2, rect.Y + CellSize - lineHeight - 5);
+                    }
+                    g.DrawString($"X {((Chunk & 63) * 32 + x),4}", font, textBrush, rect.X + 2, rect.Y + 0 * lineHeight + 2);
+                    g.DrawString($"Y {layer,4}", font, textBrush, rect.X + 2, rect.Y + 1 * lineHeight + 2);
+                    g.DrawString($"Z {((Chunk >> 6) * 32 + z),4}", font, textBrush, rect.X + 2, rect.Y + 2 * lineHeight + 2);
+
+                }
             }
         }
 
@@ -800,22 +750,35 @@ public partial class MapEditor : UserControl
             ceiling = selectedInterior.Ceiling - 1;
         }
 
+        int y = (int)NUD_Height.Value;
         var part = Stage.Parts
             .Where(p =>
             {
                 if (p.Y > ceiling || p.Y + p.Bounds.Height - 1 < floor)
                     return false;
 
-                if (!CHK_AllHeights.Checked)
+                int checkY = CHK_AllHeights.Checked ? Math.Max(p.Y, floor) : y;
+                if (checkY < floor || checkY > ceiling)
+                    return false;
+
+                if (Interior)
                 {
-                    int y = (int)NUD_Height.Value;
-                    if (Interior)
-                    {
-                        if (y < floor || y > ceiling)
-                            return false;
-                    }
-                    return p.Bounds.Contains(x, y, z);
+                    Rectangle rect = GetRectangle(p.Bounds, p.Direction);
+                    if (!rect.Contains(e.Location))
+                        return false;
+
+                    int offsetX = (((p.Direction & 1) != 0) ^ ((p.Direction & 2) != 0)) ? 1 : 0;
+                    int offsetZ = (p.Direction & 2) == 0 ? 1 : 0;
+                    int localX = (e.Location.X - rect.X) / CellSize;
+                    int localZ = (e.Location.Y - rect.Y) / CellSize;
+                    int cellX = p.Bounds.X + localX / 2;
+                    int cellZ = p.Bounds.Z + localZ / 2;
+                    return p.Bounds.Contains(cellX, checkY, cellZ);
                 }
+
+                if (!CHK_AllHeights.Checked)
+                    return p.Bounds.Contains(x, checkY, z);
+
                 return p.Bounds.Contains(x, Math.Max(p.Y, floor), z) || (p.Y <= ceiling && p.Bounds.Contains(x, ceiling, z));
             })
             .OrderByDescending(p => p.Y)
@@ -829,9 +792,9 @@ public partial class MapEditor : UserControl
         TB_Search.Clear();
         SelectedPart = part;
         Loading = false;
-
-        LoadParts(false);
+        LoadParts(false, false);
     }
+
 
     private void checkBox1_CheckedChanged(object sender, EventArgs e)
     {
@@ -864,9 +827,11 @@ public partial class MapEditor : UserControl
         var allInteriorMaps = new Dictionary<ushort, List<(int Floor, string Signature)>>();
         foreach (var chunk in Stage!.Chunks.Where(f => f <= 3965).OrderByDescending(f => f))
         {
-            var boundaries = GetInteriorBoundaries((ushort)chunk);
-            boundaries = boundaries.Where((c, i) => i % 2 != 1).Select(s => (s.Floor, InteriorTypes[s.Signature].Replace("%0", AreaHouseName))).ToList();
-            if (boundaries.Count == 0)                break;
+            var boundaries = GetInteriorBoundaries((ushort)chunk)
+                .Where((c, i) => i % 2 != 1)
+                .Select(s => (s.Floor, InteriorTypes[s.Signature].Replace("%0", AreaHouseName))).ToList();
+            if (boundaries.Count == 0)
+                break;
 
             allInteriorMaps[(ushort)chunk] = boundaries;
         }
@@ -887,8 +852,6 @@ public partial class MapEditor : UserControl
         if (Loading)
             return;
         View_Changed(sender, e);
-        if (!Interior)
-            LoadInteriors((ushort)Chunk);
     }
 
     private void CB_Chunk_SelectedIndexChanged(object sender, EventArgs e)
@@ -896,6 +859,7 @@ public partial class MapEditor : UserControl
         if (Loading)
             return;
         View_Changed(sender, e);
-        LoadInteriors((ushort)Chunk);
+        if (CheckInterior((ushort)Chunk))
+          LoadInteriors((ushort)Chunk);
     }
 }
