@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\PokoHex.Core\PokoHex.Core.csproj" />
+    <ProjectReference Include="..\PokoHex.Parsing\PokoHex.Parsing.csproj" />
   </ItemGroup>
 
 </Project>

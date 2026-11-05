@@ -1,10 +1,12 @@
 ﻿using PokoHex.Core;
+using PokoHex.Parsing;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Text;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Windows.Forms;
 
@@ -126,113 +128,35 @@ public partial class MapEditor : UserControl
         LoadParts(true);
     }
 
-    private bool CheckInterior(ushort chunk)
+    private List<(int Floor, string Signature)> GetInteriorBoundaries(ushort chunk)
     {
-        bool IsInterior(ushort chunk)
-        {
-            if (Stage == null)
-                return false;
-
-            int x0 = (chunk & 63) * 32;
-            int z0 = (chunk >> 6) * 32;
-
-            var partsByY = new MapPart[128][];
-            var groundByY = new HashSet<int>[128];
-
-            for (int y = 0; y < 128; y++)
-            {
-                partsByY[y] = Stage.Parts
-                    .Where(p =>
-                    {
-                        if (p.Chunk != chunk)
-                            return false;
-
-                        var b = p.Bounds;
-
-                        if (b.Width == 0 || b.Height == 0 || b.Depth == 0)
-                            b = new MapBounds(p.X, p.Y, p.Z, 1, 1, 1);
-
-                        return y >= b.Y && y < b.Y + b.Height;
-                    })
-                    .ToArray();
-
-                groundByY[y] = [];
-
-                for (int z = 0; z < 32; z++)
-                {
-                    for (int x = 0; x < 32; x++)
-                    {
-                        if (Stage.GetCell(x0 + x, y, z0 + z) != 0)
-                            groundByY[y].Add(z * 32 + x);
-                    }
-                }
-            }
-
-            for (int y = 0; y < 127; y++)
-            {
-                if (partsByY[y].Length != 1 || partsByY[y + 1].Length != 0)
-                    continue;
-
-                if (groundByY[y].Count == 0 ||
-                    !groundByY[y].SetEquals(groundByY[y + 1]))
-                    continue;
-
-                var bounds = partsByY[y][0].Bounds;
-                long expectedCells = (long)bounds.Width * bounds.Depth * 4;
-
-                if (groundByY[y].Count != expectedCells)
-                    continue;
-
-                return true;
-            }
-
-            return false;
-        }
-        if (Interior = IsInterior(chunk))
-        {
-            interior.Visible = true;
-            CB_Interior.Visible = true;
-        }
-        else
-        {
-            interior.Visible = false;
-            CB_Interior.Visible = false;
-        }
-        if (CB_Interior.Items.Count == 0)
-        {
-            btnJumpToInteriors.Visible = false;
-        }
-        else
-        {
-            btnJumpToInteriors.Visible = true;
-        }
-
-        return Interior;
-    }
-
-    private class InteriorInfo
-    {
-        public ushort Floor { get; set; }
-        public ushort Ceiling { get; set; }
-        public string Text { get; set; } = "";
-
-        public override string ToString() => Text;
-    }
-
-    private void LoadInteriors(ushort chunk)
-    {
-        CB_Interior.Items.Clear();
-
         if (Stage == null)
-            return;
+            return [];
 
         int x0 = (chunk & 63) * 32;
         int z0 = (chunk >> 6) * 32;
 
+        // Check whether the initial ground layer at Y=4 exists.
+        bool hasGround = false;
+
+        for (int z = 0; z < 32 && !hasGround; z++)
+        {
+            for (int x = 0; x < 32; x++)
+            {
+                if (Stage.GetCell(x0 + x, 4, z0 + z) != 0)
+                {
+                    hasGround = true;
+                    break;
+                }
+            }
+        }
+
+        if (!hasGround)
+            return [];
+
         var partsByY = new MapPart[128][];
         var groundByY = new HashSet<int>[128];
 
-        // Collect objects and ground cells for each Y layer.
         for (int y = 0; y < 128; y++)
         {
             partsByY[y] = Stage.Parts
@@ -262,72 +186,138 @@ public partial class MapEditor : UserControl
             }
         }
 
-        // Find floor and ceiling candidates.
-        var boundaries = new List<int>();
+        var boundaries = new List<(int Floor, string Signature)>();
 
-        for (int y = 0; y < 127; y++)
+        for (int y = 4; y < 127; y++)
         {
-            // Candidate layer must contain exactly one object.
-            if (partsByY[y].Length != 1)
+            if (partsByY[y].Length != 1 || partsByY[y + 1].Length != 0)
                 continue;
 
-            // Following layer must contain no objects.
-            if (partsByY[y + 1].Length != 0)
-                continue;
-
-            // Both layers must have identical ground footprints.
             if (groundByY[y].Count == 0 ||
                 !groundByY[y].SetEquals(groundByY[y + 1]))
                 continue;
 
-            // Ground footprint must match the object's dimensions
-            // at double resolution.
             var bounds = partsByY[y][0].Bounds;
-
             long expectedCells = (long)bounds.Width * bounds.Depth * 4;
 
             if (groundByY[y].Count != expectedCells)
                 continue;
 
-            boundaries.Add(y);
+            string signature = GetGroundSignature(groundByY, y);
+
+            boundaries.Add((y, signature));
         }
 
-        // Pair boundaries: floor followed by ceiling.
+        return boundaries;
+    }
+
+    private static string GetGroundSignature(HashSet<int>[] groundByY, int floor)
+    {
+        var floorCells = groundByY[floor];
+
+        if (floorCells.Count == 0 || floor + 2 >= groundByY.Length)
+            return string.Empty;
+
+        int minX = floorCells.Min(cell => cell % 32);
+        int maxX = floorCells.Max(cell => cell % 32);
+        int minZ = floorCells.Min(cell => cell / 32);
+        int maxZ = floorCells.Max(cell => cell / 32);
+        int width = maxX - minX + 1;
+        int depth = maxZ - minZ + 1;
+        uint firstRow = 0;
+        uint lastRow = 0;
+
+        foreach (int cell in groundByY[floor + 2])
+        {
+            int x = cell % 32 - minX;
+            int z = cell / 32 - minZ;
+
+            if (x < 0 || x >= width)
+                continue;
+
+            if (z == 0)
+                firstRow |= (ushort)(1 << x);
+            if (z == depth - 1)
+                lastRow |= (ushort)(1 << x);
+        }
+
+        return $"{int.Parse($"{minX:d2}{minZ:d2}{width:d2}{depth:d2}"):X8}{firstRow:X4}{lastRow:X4}";
+    }
+
+    private bool CheckInterior(ushort chunk)
+    {
+        Interior = GetInteriorBoundaries(chunk).Count > 0;
+
+        interior.Visible = Interior;
+        CB_Interior.Visible = Interior;
+        btnJumpToInteriors.Visible = CB_Interior.Items.Count > 0;
+
+        return Interior;
+    }
+
+    private class InteriorInfo
+    {
+        public ushort Floor { get; set; }
+        public ushort Ceiling { get; set; }
+        public string Text { get; set; } = "";
+
+        public override string ToString() => Text;
+    }
+    private readonly Dictionary<string, string> InteriorTypes = new Dictionary<string, string>
+    {
+        { "001E8F90F000F000", "Area Gate"},
+        { "001EDDAC0000F000", "Pokécenter" },
+        { "0099FACE000000F0", "%0Hut" },
+        { "007B29C2000003C0", "%0Den" },
+        { "003DAEB800003C00", "%0Cottage" },
+        { "00005ABC00003C00", "%0House (F1)" },
+        { "00005ABC03C00000", "%0House (F2)" },
+    };
+
+    private string AreaHouseName =>
+        SelectedArea switch
+        {
+            0 => "Leaf ",
+            1 => "Beach ",
+            2 => "Stone ",
+            3 => "City ",
+            _ => ""
+        };
+
+    private void LoadInteriors(ushort chunk)
+    {
+        CB_Interior.Items.Clear();
+
+        var boundaries = GetInteriorBoundaries(chunk);
+
         for (int i = 0; i + 1 < boundaries.Count; i += 2)
         {
-            int floor = boundaries[i];
-            int ceiling = boundaries[i + 1];
+            var (floor, signature) = boundaries[i];
+            int ceiling = boundaries[i + 1].Floor;
 
             if (ceiling <= floor)
                 continue;
 
-            string area_house_name = SelectedArea switch
+            if (!InteriorTypes.TryGetValue(signature, out string? name))
             {
-                0 => "Leaf ",
-                1 => "Beach ",
-                2 => "Stone ",
-                3 => "City ",
-                _ => ""
-            };
-            string name = floor switch
-            {
-                4 => "Gate 1",
-                16 => "Gate 2",
-                28 => "Gate 3",
-                40 => "Gate 4",
-                52 => "Pokémon Center",
-                64 => $"{area_house_name}Hut",
-                74 => $"{area_house_name}Den",
-                81 => $"{area_house_name}Cottage",
-                93 => $"{area_house_name}House",
-                _ => $"Interior (Y {floor})"
-            };
+                name = floor switch
+                {
+                    4 => "Gate 1",
+                    16 => "Gate 2",
+                    28 => "Gate 3",
+                    40 => "Gate 4",
+                    52 => "Pokémon Center",
+                    _ => $"Unknown interior {InteriorTypes.Count + 1}"
+                };
+
+                InteriorTypes[signature] = name;
+            }
 
             CB_Interior.Items.Add(new InteriorInfo
             {
                 Floor = (ushort)floor,
                 Ceiling = (ushort)ceiling,
-                Text = $"{name} (Y {floor}–{ceiling})"
+                Text = $"{name.Replace("%0", AreaHouseName)} (Y {floor}–{ceiling})"
             });
         }
 
@@ -503,7 +493,6 @@ public partial class MapEditor : UserControl
             Chunk = chunk.Value;
 
         //LoadParts(false);
-        CheckInterior((ushort)Chunk);
 
         RefreshCounter();
         PB_Map.Invalidate();
@@ -530,10 +519,6 @@ public partial class MapEditor : UserControl
 
     private void B_Redo_Click(object sender, EventArgs e)
     {
-        var x0 = (Chunk & 63) * 32;
-        var z0 = (Chunk >> 6) * 32;
-
-
         Stage?.RedoEdit();
         LoadParts(false);
     }
@@ -876,7 +861,18 @@ public partial class MapEditor : UserControl
 
     private void btnJumpToInteriors_Click(object sender, EventArgs e)
     {
-        CB_Chunk.SelectedIndex = CB_Chunk.Items.Cast<ItemInfo>().ToList().FindIndex(z => (z.Value & 63) * 32 == 1952 && (z.Value >> 6) * 32 == 1952);
+        var allInteriorMaps = new Dictionary<ushort, List<(int Floor, string Signature)>>();
+        foreach (var chunk in Stage!.Chunks.Where(f => f <= 3965).OrderByDescending(f => f))
+        {
+            var boundaries = GetInteriorBoundaries((ushort)chunk);
+            boundaries = boundaries.Where((c, i) => i % 2 != 1).Select(s => (s.Floor, InteriorTypes[s.Signature].Replace("%0", AreaHouseName))).ToList();
+            if (boundaries.Count == 0)                break;
+
+            allInteriorMaps[(ushort)chunk] = boundaries;
+        }
+        //MessageBox.Show(string.Join(Environment.NewLine, allInteriorMaps.SelectMany(entry => new[] { $"Chunk {entry.Key} (X {(entry.Key & 63) * 32} / Z {(entry.Key >> 6) * 32}):" }.Concat(entry.Value.Select(b => $"  Y={b.Floor}: {b.Signature}")))));
+
+        CB_Chunk.SelectedIndex = CB_Chunk.Items.Cast<ItemInfo>().ToList().FindIndex(z => z.Value == allInteriorMaps.Keys.FirstOrDefault());
     }
 
     private void CB_Interior_SelectedIndexChanged(object sender, EventArgs e)
@@ -884,5 +880,22 @@ public partial class MapEditor : UserControl
         if (Loading)
             return;
         RefreshCounter();
+    }
+
+    private void NUD_Height_ValueChanged(object sender, EventArgs e)
+    {
+        if (Loading)
+            return;
+        View_Changed(sender, e);
+        if (!Interior)
+            LoadInteriors((ushort)Chunk);
+    }
+
+    private void CB_Chunk_SelectedIndexChanged(object sender, EventArgs e)
+    {
+        if (Loading)
+            return;
+        View_Changed(sender, e);
+        LoadInteriors((ushort)Chunk);
     }
 }
