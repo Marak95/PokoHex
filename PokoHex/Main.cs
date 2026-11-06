@@ -514,17 +514,6 @@ public partial class Main : Form
         NUD_CustomItemID.Enabled = chk_CustomItem.Checked;
         CB_Item.Enabled = !chk_CustomItem.Checked;
     }
-
-    private void btnTest_Click(object sender, EventArgs e)
-    {
-
-    }
-
-    private void RB_PlayerSection_CheckedChanged(object sender, EventArgs e)
-    {
-        Editor_Skills.Visible = RB_Skills.Checked;
-        Editor_Reactions.Visible = RB_Reactions.Checked;
-    }
 }
 
 class EmptyLastComparer : System.Collections.IComparer
