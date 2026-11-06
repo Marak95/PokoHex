@@ -154,6 +154,8 @@ partial class AbilityEditor
         CB_WheelAbility.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
         CB_WheelAbility.AutoCompleteSource = AutoCompleteSource.ListItems;
         CB_WheelAbility.DropDownStyle = ComboBoxStyle.DropDownList;
+        CB_WheelAbility.AutoCompleteSource = AutoCompleteSource.ListItems;
+        CB_WheelAbility.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
         CB_WheelAbility.DropDownWidth = 400;
         CB_WheelAbility.Location = new Point(13, 541);
         CB_WheelAbility.Margin = new Padding(3, 4, 3, 4);
@@ -171,6 +173,9 @@ partial class AbilityEditor
         B_Set.Size = new Size(114, 40);
         B_Set.TabIndex = 2;
         B_Set.Text = "Set";
+        B_Set.Location = new Point(16, 480);
+        B_Set.Size = new Size(100, 30);
+        B_Set.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
         B_Set.Click += B_Set_Click;
         // 
         // buttons

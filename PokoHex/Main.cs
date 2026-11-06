@@ -90,6 +90,12 @@ public partial class Main : Form
 
     private string GetItemName(ushort id) => Items.FirstOrDefault(z => z.Value == id)?.Text ?? (id == 0 ? "(Empty)" : $"Item {id:D4}");
 
+    private void RB_PlayerSection_CheckedChanged(object sender, EventArgs e)
+    {
+        Editor_Skills.Visible = RB_Skills.Checked;
+        Editor_Reactions.Visible = RB_Reactions.Checked;
+    }
+
     private void LoadInventory()
     {
         if (SAV == null)
@@ -140,6 +146,8 @@ public partial class Main : Form
         GameInfo.SetLanguage2Char(Menu_Language.SelectedIndex);
         Editor_Villagers.RefreshLanguage();
         Editor_Map.RefreshLanguage();
+        Editor_Skills.RefreshLanguage();
+        Editor_Reactions.RefreshLanguage();
         Items = GameInfo.Strings.ItemDataSource;
         BindItems();
         Loading = true;
@@ -299,6 +307,8 @@ public partial class Main : Form
             SaveSlot();
             Editor_Villagers.SaveChanges();
             Editor_Map.SaveChanges();
+            Editor_Skills.SaveChanges();
+            Editor_Reactions.SaveChanges();
             if (TB_Name.Text != SAV.Common.PlayerName)
                 SAV.Common.PlayerName = TB_Name.Text;
             using var dialog = new FolderBrowserDialog { Description = "Select a new, empty folder for the edited save", UseDescriptionForTitle = true };
